@@ -31,7 +31,7 @@ public class LineView extends View {
 
 
     private String[] mXlabels = {"9:30", "10:30", "11:30/13:00", "14:00", "15:00"};
-    private String[] mYlabels = {"2.98", "2.99", "2.99", "2.98", "2.92", "2.94", "2.95"};
+    private String[] mYlabels = {"2.99", "2.98", "2.97", "2.96", "2.95"};
     private String mTitle = "title";
 
     public LineView(Context context) {
@@ -64,7 +64,7 @@ public class LineView extends View {
         mAxisPaint.setColor(Color.parseColor("#000000"));
         mCrossLinePaint.setColor(Color.parseColor("#ff0000"));
         mAvgLinePaint.setColor(Color.parseColor("#0000ff"));
-        mBgColorPaint.setColor(Color.parseColor("#d5d5d5"));
+        mBgColorPaint.setColor(Color.parseColor("#eeeeee"));
 
         mAxisPaint.setAntiAlias(true);
         mCrossLinePaint.setAntiAlias(true);
@@ -103,7 +103,8 @@ public class LineView extends View {
         super.onDraw(canvas);
 
         drawBackGround(canvas);//绘制view的背景
-        drawXandYscale(canvas);//绘制xy坐标刻度值
+        drawYandXscale(canvas);//绘制Y轴和x刻度值
+        drawXandYscale(canvas);//绘制x轴和y刻度值
     }
 
 
@@ -151,7 +152,7 @@ public class LineView extends View {
     }
 
     //绘制x坐标刻度值 和Y轴
-    public void drawXandYscale(Canvas canvas) {
+    public void drawYandXscale(Canvas canvas) {
 
         for (int i = 0; i < mXlabels.length; i++) {
 
@@ -167,7 +168,24 @@ public class LineView extends View {
                     canvas.drawText(text, i * mXscale - mTextBounds.width() / 2, mYlength + mTextBounds.height(), mAxisPaint);
                 }
             } else {
-                canvas.drawText(text, i * mXscale - mTextBounds.width()-10, mYlength + mTextBounds.height(), mAxisPaint);
+                canvas.drawText(text, i * mXscale - mTextBounds.width() - 10, mYlength + mTextBounds.height(), mAxisPaint);
+            }
+        }
+    }
+
+    //绘制Y坐标刻度值 和X轴
+    public void drawXandYscale(Canvas canvas) {
+        for (int i = 0; i < 5; i++) {
+            canvas.drawLine(0, i * mYscale, mXlength, i * mYscale, mAxisPaint);
+            String text = mYlabels[i];
+            mAxisPaint.getTextBounds(text, 0, text.length(), mTextBounds);
+
+            if (i == 0) {
+                canvas.drawText(text, 0, mTextBounds.height(), mAxisPaint);
+            } else if (i == 4) {
+                canvas.drawText(text, 0, mYlength, mAxisPaint);
+            } else {
+                canvas.drawText(text, 0, mYscale * i, mAxisPaint);
             }
         }
     }
