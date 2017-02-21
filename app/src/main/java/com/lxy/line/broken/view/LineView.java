@@ -32,6 +32,7 @@ public class LineView extends View {
 
     private String[] mXlabels = {"9:30", "10:30", "11:30/13:00", "14:00", "15:00"};
     private String[] mYlabels = {"2.99", "2.98", "2.97", "2.96", "2.95"};
+    private float[][] mAvgData = new float[6][2];
     private String mTitle = "title";
 
     public LineView(Context context) {
@@ -105,6 +106,7 @@ public class LineView extends View {
         drawBackGround(canvas);//绘制view的背景
         drawYandXscale(canvas);//绘制Y轴和x刻度值
         drawXandYscale(canvas);//绘制x轴和y刻度值
+        drawAvgLine(canvas);
     }
 
 
@@ -175,18 +177,49 @@ public class LineView extends View {
 
     //绘制Y坐标刻度值 和X轴
     public void drawXandYscale(Canvas canvas) {
-        for (int i = 0; i < 5; i++) {
-            canvas.drawLine(0, i * mYscale, mXlength, i * mYscale, mAxisPaint);
+        for (int i = 0; i < mYlabels.length; i++) {
+
             String text = mYlabels[i];
             mAxisPaint.getTextBounds(text, 0, text.length(), mTextBounds);
 
             if (i == 0) {
+                canvas.drawLine(0, i * mYscale, mXlength, i * mYscale, mAxisPaint);
                 canvas.drawText(text, 0, mTextBounds.height(), mAxisPaint);
             } else if (i == 4) {
+                canvas.drawLine(0, mYlength, mXlength, mYlength, mAxisPaint);
                 canvas.drawText(text, 0, mYlength, mAxisPaint);
             } else {
+                canvas.drawLine(0, i * mYscale, mXlength, i * mYscale, mAxisPaint);
                 canvas.drawText(text, 0, mYscale * i, mAxisPaint);
             }
         }
     }
+
+    //
+    public void drawAvgLine(Canvas canvas) {
+
+        getAvgData();
+
+        for (int i = 0; i < mYlabels.length; i++) {
+            canvas.drawLine(i * mXscale, mAvgData[i][1], (i + 1) * mXscale, mAvgData[i + 1][1], mAvgLinePaint);
+        }
+    }
+
+    // 获取avg数据
+    public void getAvgData() {
+        float startx = 0;
+        float starty = mYlength;
+
+        for (int i = 0; i < mXlabels.length; i++) {
+            mAvgData[i][0] = i * mXscale;
+        }
+        mAvgData[0][1] = 3 * mYscale;
+        mAvgData[1][1] = 2 * mYscale;
+        mAvgData[2][1] = 1 * mYscale;
+        mAvgData[3][1] = 2 * mYscale;
+        mAvgData[4][1] = 1 * mYscale;
+
+    }
+
+
 }
