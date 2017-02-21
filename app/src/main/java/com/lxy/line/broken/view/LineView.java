@@ -29,11 +29,10 @@ public class LineView extends View {
     private float mScaleTextSize;//坐标轴上刻度文字的大小
     private Rect mTextBounds = new Rect();
 
-
     private String[] mXlabels = {"9:30", "10:30", "11:30/13:00", "14:00", "15:00"};
     private String[] mYlabels = {"2.99", "2.98", "2.97", "2.96", "2.95"};
     private float[][] mAvgData = new float[6][2];
-    private String mTitle = "title";
+    private String mDesc = "title";
 
     public LineView(Context context) {
         this(context, null);
@@ -53,6 +52,7 @@ public class LineView extends View {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         init();
+        initListener();
     }
 
     public void init() {
@@ -72,7 +72,15 @@ public class LineView extends View {
         mAvgLinePaint.setAntiAlias(true);
         mBgColorPaint.setAntiAlias(true);
 
+    }
 
+    public void initListener() {
+        this.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewClickLisftener.onClick();
+            }
+        });
     }
 
     @Override
@@ -107,6 +115,7 @@ public class LineView extends View {
         drawYandXscale(canvas);//绘制Y轴和x刻度值
         drawXandYscale(canvas);//绘制x轴和y刻度值
         drawAvgLine(canvas);
+        drawDesc(canvas);
     }
 
 
@@ -126,6 +135,7 @@ public class LineView extends View {
 
         String text = mXlabels[0];
         mAxisPaint.getTextBounds(text, 0, text.length(), mTextBounds);
+
         mXlength = mXscale * 4.0f;
         mYlength = mYscale * 4.0f - mTextBounds.height();
 
@@ -219,6 +229,30 @@ public class LineView extends View {
         mAvgData[3][1] = 2 * mYscale;
         mAvgData[4][1] = 1 * mYscale;
 
+    }
+
+    // drawTitle
+    public void drawDesc(Canvas canvas) {
+        mAxisPaint.getTextBounds(mDesc, 0, mDesc.length(), mTextBounds);
+        float x = getWidth() / 2.0f - mTextBounds.width() / 2.0f;
+        float y = getHeight();
+        canvas.drawText(mDesc, x, y, mAxisPaint);
+    }
+
+    public void setDesc(String desc) {
+
+    }
+
+
+    private onViewClickListener mViewClickLisftener;
+
+    public void setOnViewClickListener(onViewClickListener listener) {
+        mViewClickLisftener = listener;
+    }
+
+
+    public interface onViewClickListener {
+        void onClick();
     }
 
 
