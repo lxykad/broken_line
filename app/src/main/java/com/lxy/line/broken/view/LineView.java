@@ -8,6 +8,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 
 public class LineView extends View {
@@ -34,6 +37,22 @@ public class LineView extends View {
     private float[][] mAvgData = new float[6][2];
     private String mDesc = "title";
 
+    private boolean mCrossLineIsShowing;
+    private GestureDetector mGestureDetector;
+    private float mCrossX;
+    private float mCrossY;
+
+    private Runnable mLongPressRunnable = new Runnable() {
+        @Override
+        public void run() {
+            String name = Thread.currentThread().getName();
+            System.out.println("lineview=======mLongPressRunnable====" + name);//main
+
+
+        }
+    };
+
+
     public LineView(Context context) {
         this(context, null);
     }
@@ -52,7 +71,6 @@ public class LineView extends View {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         init();
-        initListener();
     }
 
     public void init() {
@@ -72,15 +90,6 @@ public class LineView extends View {
         mAvgLinePaint.setAntiAlias(true);
         mBgColorPaint.setAntiAlias(true);
 
-    }
-
-    public void initListener() {
-        this.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mViewClickLisftener.onClick();
-            }
-        });
     }
 
     @Override
@@ -104,6 +113,7 @@ public class LineView extends View {
         }
 
         initData();
+        initGesture();
 
     }
 
@@ -116,6 +126,59 @@ public class LineView extends View {
         drawXandYscale(canvas);//绘制x轴和y刻度值
         drawAvgLine(canvas);
         drawDesc(canvas);
+        drawCrossLine(canvas);
+    }
+
+    public void initGesture() {
+        mGestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+
+                if (mCrossLineIsShowing) {
+                    System.out.println("lineview=======隐藏cross");
+                    mCrossLineIsShowing = false;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                if (mCrossLineIsShowing) {
+                    System.out.println("lineview=======隐藏cross");
+                    mCrossLineIsShowing = false;
+                } else {
+                    System.out.println("lineview=======显示cross");
+                    mCrossLineIsShowing = true;
+                }
+
+                //postDelayed(mLongPressRunnable, 100);
+                mCrossY = e.getY();
+                mCrossX = e.getX();
+
+                postInvalidate();
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return false;
+            }
+        });
     }
 
 
@@ -124,8 +187,8 @@ public class LineView extends View {
         int viewWidth = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
         int viewHeight = getMeasuredHeight() - getPaddingTop() - getPaddingBottom();
 
-        System.out.println("lineview=========view_width====" + viewWidth);
-        System.out.println("lineview=========view_height====" + viewHeight);
+        // System.out.println("lineview=========view_width====" + viewWidth);
+        // System.out.println("lineview=========view_height====" + viewHeight);
 
         mXscale = viewWidth / 4.0f;
         mYscale = viewHeight / 4.0f;
@@ -215,6 +278,11 @@ public class LineView extends View {
         }
     }
 
+    //
+    public void drawCrossLine(Canvas canvas) {
+        canvas.drawLine(0,0,mCrossX,mCrossY,mCrossLinePaint);
+    }
+
     // 获取avg数据
     public void getAvgData() {
         float startx = 0;
@@ -255,5 +323,13 @@ public class LineView extends View {
         void onClick();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
 
+        //touch事件委托给手势识别器
+        if (mGestureDetector != null) {
+            mGestureDetector.onTouchEvent(event);
+        }
+        return true;
+    }
 }
